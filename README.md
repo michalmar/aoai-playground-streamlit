@@ -11,3 +11,12 @@ AZURE_OPENAI_API_KEY=
 AZURE_OPENAI_API_VERSION=2024-04-01-preview
 AZURE_OPENAI_MODELS_DEPLOYEMNTS=deployment1,deployment2
 ```
+
+
+## Example of playgrounds
+### Example of Chat playground
+
+![Example of Chat playground](docs/chat-playground.png)
+
+### Example of Completion playground
+![Example of Completion playground](docs/completion-playground.png)
