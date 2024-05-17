@@ -19,3 +19,8 @@ Supported scenarios & APIs:
 '''
 
 st.markdown(text)
+
+st.write("## Example of Chat playground")
+st.image("docs/chat-playground.png", width=800)
+st.write("## Example of Completion playground")
+st.image("docs/completion-playground.png", width=800)
