@@ -38,10 +38,10 @@ st.set_page_config(layout="wide")
 st.title("Completion with Vision model")
 
 with st.sidebar:
-    st.caption("Car status")
+    st.caption("Settings")
     # vehicle_feature_display = st.json(st.session_state.vehicle_features)
     st.session_state.model = st.selectbox("Select a model", AZURE_OPENAI_VISION_MODEL_DEPLOYEMNTS.split(","))
-    # st.session_state.temperature = st.slider("Temperature", 0.0, 1.0, 0.5, 0.01)
+    st.session_state.temperature = st.slider("Temperature", 0.0, 1.0, 0.5, 0.01)
     st.session_state.max_tokens = st.slider("Max tokens", 100, 4000, 800, 100)
         
     st.text_area("Enter your SYSTEM message", key="system_custom_prompt", value=st.session_state.SYSTEM_PROMPT)
@@ -119,7 +119,8 @@ if st.button("Submit"):
                 }
             ] } 
         ],
-        max_tokens=st.session_state.max_tokens
+        max_tokens=st.session_state.max_tokens,
+        temperature=st.session_state.temperature
     )
 
     st.write("## Completion result:")
