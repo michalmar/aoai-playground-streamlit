@@ -3,12 +3,12 @@ import os
 import json
 # Note: DALL-E 3 requires version 1.0.0 of the openai-python library or later
 from openai import AzureOpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 from prompts import PROMPTS_SYSTEM_LIST
 
-from dotenv import load_dotenv
-if not load_dotenv("../credentials.env"):
-    load_dotenv("credentials.env")
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
 # MODEL = os.environ['AZURE_OPENAI_MODEL_NAME']
 # MODEL = "gpt-35-turbo"
@@ -34,6 +34,8 @@ if "max_tokens" not in st.session_state:
 
 AZURE_OPENAI_MODELS_DEPLOYEMNTS = os.environ['AZURE_OPENAI_MODELS_DEPLOYEMNTS']
 
+token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default")
+
 #################################################################################
 # App elements
 
@@ -44,7 +46,7 @@ with st.sidebar:
     st.caption("Settings")
     st.session_state.model = st.selectbox("Select a model", AZURE_OPENAI_MODELS_DEPLOYEMNTS.split(","))
     st.session_state.temperature = st.slider("Temperature", 0.0, 1.0, 0.5, 0.01)
-    st.session_state.max_tokens = st.slider("Max tokens", 10, 4000, 400, 5)
+    st.session_state.max_tokens = st.slider("Max tokens", 100, 4000, 800, 100)
 
     # Create a selectbox with the dictionary items
     selected_option = st.selectbox(
@@ -96,11 +98,20 @@ if prompt := st.chat_input("What is up?"):
             message_placeholder = st.empty()
             full_response = ""
 
-            client = AzureOpenAI(
-                api_version=os.environ['AZURE_OPENAI_API_VERSION'],
-                azure_endpoint=os.environ['AZURE_OPENAI_ENDPOINT'],
-                api_key=os.environ["AZURE_OPENAI_API_KEY"],
-            ) 
+            if os.environ["AZURE_OPENAI_API_KEY"] == "":
+                # using managed identity
+                client = AzureOpenAI(
+                    api_version=os.environ['AZURE_OPENAI_API_VERSION'],
+                    azure_endpoint=os.environ['AZURE_OPENAI_ENDPOINT'],
+                    azure_ad_token_provider=token_provider,
+                )
+            else:
+                # using api key
+                client = AzureOpenAI(
+                    api_version=os.environ['AZURE_OPENAI_API_VERSION'],
+                    azure_endpoint=os.environ['AZURE_OPENAI_ENDPOINT'],
+                    api_key=os.environ["AZURE_OPENAI_API_KEY"],
+                ) 
             
             response = client.chat.completions.create(
                 model = st.session_state.model ,
