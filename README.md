@@ -10,6 +10,14 @@ AZURE_OPENAI_ENDPOINT=
 AZURE_OPENAI_API_KEY=
 AZURE_OPENAI_API_VERSION=2024-04-01-preview
 AZURE_OPENAI_MODELS_DEPLOYEMNTS=deployment1,deployment2
+AZURE_OPENAI_VISION_MODEL_DEPLOYEMNTS=gpt-4-turbo
+SCM_DO_BUILD_DURING_DEPLOYMENT=true
+```
+
+4. deploy the app
+
+```shell
+az webapp deploy --resource-group YOUR_RG --name YOUR_APP  --src-path playground.zip
 ```
 
 
