@@ -26,7 +26,7 @@ if "max_tokens" not in st.session_state:
 
 MODEL = st.session_state.model
 token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default")
-
+AZURE_OPENAI_MODELS_COMPLETION_DEPLOYEMNTS = os.environ['AZURE_OPENAI_MODELS_COMPLETION_DEPLOYEMNTS']
 #################################################################################
 # App elements
 
@@ -35,7 +35,7 @@ st.title("Completion Playground")
 
 with st.sidebar:
     st.caption("Settings")
-    st.session_state.model = st.selectbox("Select a model", ["gpt-35-turbo", "gpt-35-turbo-16k","gpt-4", "gpt-4-turbo"])
+    st.session_state.model = st.selectbox("Select a model", AZURE_OPENAI_MODELS_COMPLETION_DEPLOYEMNTS.split(","))
     st.session_state.temperature = st.slider("Temperature", 0.0, 1.0, 0.5, 0.01)
     st.session_state.max_tokens = st.slider("Max tokens", 100, 4000, 800, 100)
 
