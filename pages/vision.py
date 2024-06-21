@@ -37,6 +37,15 @@ token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://co
 st.set_page_config(layout="wide")
 st.title("Completion with Vision model")
 
+def prepare_to_save():
+    session_setup = {}
+    session_setup["model"] = st.session_state.model
+    session_setup["temperature"] = st.session_state.temperature
+    session_setup["max_tokens"] = st.session_state.max_tokens
+    session_setup["SYSTEM_PROMPT"] = st.session_state.SYSTEM_PROMPT
+    session_setup["messages"] = st.session_state.messages
+    return session_setup
+
 with st.sidebar:
     st.caption("Settings")
     # vehicle_feature_display = st.json(st.session_state.vehicle_features)
@@ -52,6 +61,16 @@ with st.sidebar:
                         {"role": "system", "content": st.session_state.SYSTEM_PROMPT},
                     ]
     st.caption("Refresh the page to reset to default settings")
+
+    if st.button("Download setup as JSON"):
+        session_data = prepare_to_save()
+        st.write("perpared")
+        st.download_button(
+                    label="💾 Download",
+                    data=json.dumps(session_data, indent=4, ensure_ascii=False).encode('utf-8'),
+                    file_name='setup.json',
+                    mime='application/json'
+                )
 
     
 
@@ -69,7 +88,7 @@ for message in st.session_state.messages:
 
 
 # create text input for user to enter a prompt
-prompt = st.text_input("Enter your prompt", value="Describe this picture:")
+prompt = st.text_area("Enter your prompt", value="Describe this picture:", height=100)
 
 if prompt.strip() == "":
     prompt = "Describe this picture:"
@@ -100,16 +119,18 @@ if st.button("Submit"):
             api_version=os.environ['AZURE_OPENAI_API_VERSION'],
             base_url=f"{os.environ['AZURE_OPENAI_ENDPOINT']}/openai/deployments/{st.session_state.model}",
             api_key=os.environ["AZURE_OPENAI_API_KEY"],
-        ) 
+        )
+
+    st.session_state.messages.append({"role": "user", "content": prompt}) 
 
     response = client.chat.completions.create(
         model=st.session_state.model,
         messages=[
-            { "role": "system", "content": "You are a helpful assistant." },
+            { "role": "system", "content": f"{st.session_state.SYSTEM_PROMPT}" },
             { "role": "user", "content": [  
                 { 
                     "type": "text", 
-                    "text": "Describe this picture:" 
+                    "text": f"{prompt}" 
                 },
                 {
                     "type": "image_url",
@@ -125,6 +146,8 @@ if st.button("Submit"):
 
     st.write("## Completion result:")
     st.write(response.choices[0].message.content)
+    # add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": response.choices[0].message.content})
 
 
 

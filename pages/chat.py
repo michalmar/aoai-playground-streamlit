@@ -42,6 +42,15 @@ token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://co
 st.set_page_config(layout="wide")
 st.title("Chat Playground")
 
+def prepare_to_save():
+    session_setup = {}
+    session_setup["model"] = st.session_state.model
+    session_setup["temperature"] = st.session_state.temperature
+    session_setup["max_tokens"] = st.session_state.max_tokens
+    session_setup["SYSTEM_PROMPT"] = st.session_state.SYSTEM_PROMPT
+    session_setup["messages"] = st.session_state.messages
+    return session_setup
+
 with st.sidebar:
     st.caption("Settings")
     st.session_state.model = st.selectbox("Select a model", AZURE_OPENAI_MODELS_DEPLOYEMNTS.split(","))
@@ -71,7 +80,15 @@ with st.sidebar:
                     ]
     st.caption("Refresh the page to reset to default settings")
 
-    
+    if st.button("Download setup as JSON"):
+        session_data = prepare_to_save()
+        st.write("perpared")
+        st.download_button(
+                    label="💾 Download",
+                    data=json.dumps(session_data, indent=4, ensure_ascii=False).encode('utf-8'),
+                    file_name='setup.json',
+                    mime='application/json'
+                )
 
 st.caption(f"powered by Azure OpenAI's {st.session_state.model} model")
 # st.caption(f"powered by Azure OpenAI's {MODEL} model")
